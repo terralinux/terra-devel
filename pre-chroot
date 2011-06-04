@@ -17,20 +17,23 @@ echo "Please prepare your partition before do this"
 echo "[+] Prepare your partition for working env"
 echo "[+] Noticeable size is arrounc 10GiB - 20GiB"
 
-fdisk $partition
-
+#partition="$(readlink -f ${1})"
+#shift 1
+#[ "${partition}" = '' ] && echo 'error: please specify a working directory' && usage 1 
+#fdisk $partition
 echo "##############################################################"
 echo "[+] Terralinux Pre-Chroot Script"
 echo "[+] Setting up Chroot environment..."
 echo "[+] this will created a working dir in /mnt"
-
-mkdir -p /mnt/terra-chroot/{etc,dev,proc}
+echo "=============================================================="
 
 chroot_lock="/mnt/terra-chroot"
 
+mkdir -p ${chroot_lock}/{etc,dev,proc}
+
 echo "[+] Preparing all needed package"
 
-cd $chroot_lock
+cd ${chroot_lock}
 
 wget http://archive.terralinux.org/repo/i686/pacman-3.5.2-1-i686.pkg.tar.gz --no-check-certificate
 wget http://archive.terralinux.org/repo/i686/libfetch-2.33-3-i686.pkg.tar.gz --no-check-certificate
@@ -42,13 +45,14 @@ wget http://archive.terralinux.org/repo/i686/gcc-libs-4.6.0-5-i686.pkg.tar.xz --
 for f in *.tar.gz ; do tar xpf $f ; done || return 1
 for f in *.tar.xz ; do tar xpf $f ; done || return 1
 
-cp -L /etc/resolv.conf /mnt/terra-chroot/etc/
-cp -L /etc/hosts /mnt/terra-chroot/etc/
-cp -L /etc/fstab /mnt/terra-chroot/etc/
-cp -L /etc/mtab /mnt/terra-chroot/etc/
+echo "[+] Binding all related stuff"
+cp -Lv /etc/resolv.conf ./etc/
+cp -Lv /etc/hosts ./etc/
+cp -Lv /etc/fstab ./etc/
+cp -Lv /etc/mtab ./etc/
 
-mount --bind /dev/ /mnt/terra-chroot/dev
-mount -t proc /proc /mnt/terra-chroot/proc
+mount --bind /dev/ ./dev
+mount -t proc /proc ./proc
 
 echo "##############################################################"
 echo "[+] Entering Chroot... "
@@ -56,7 +60,7 @@ echo "##############################################################"
 echo "[+] Once you have finish, type \"exit\""
 echo "##############################################################"
 
-chroot /mnt/terra-chroot
+env -i HOME="/root" TERM="${TERM}" SHELL="/bin/bash" chroot ${chroot_lock} /bin/bash
 
 echo "[+] Exited chroot environemnt"
 
