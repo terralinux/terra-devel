@@ -62,7 +62,7 @@ chroot ${chroot_lock}
 
 echo "[+]        Exited chroot environemnt          [+]"
 
-cd
+cd /
 
 echo "[+] Backup the binary"
 cp -v ${chroot_lock}/${dev_binary} $HOME/
