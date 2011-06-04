@@ -14,70 +14,63 @@ if [ "$EUID" != '0' ]; then
 fi
 
 chroot_lock="/mnt/terra-chroot"
+dev_binary="terra-devel.tar.xz"
 
-echo "Please prepare your partition before do this"
-echo "[+] Prepare your partition for working env"
-echo "[+] Noticeable size is arround 10GiB - 20GiB"
-
-#partition="$(readlink -f ${1})"
-#shift 1
-#[ "${partition}" = '' ] && echo 'error: please specify a working directory' && usage 1 
-#fdisk $partition
-
-echo "##############################################################"
-echo "[+] Terralinux Pre-Chroot Script"
-echo "[+] Setting up Chroot environment..."
-echo "[+] this will created a working dir in /mnt"
-echo "=============================================================="
-
+echo "  Please prepare your partition before do this"
+echo "==============================================="
+echo "[+] Prepare your partition for working env  [+]"
+echo "[+] Noticeable size is arround 10GiB - 20GiB[+]"
+echo "[+]-----------------------------------------[+]"
+echo "[+]       Terralinux Pre-Chroot Script      [+]"
+echo "[+]     Setting up Chroot environment...    [+]"
+echo "[+] this will created a working dir in /mnt [+]"
+echo "[+]=========================================[+]"
+echo "[+]=========================================[+]"
+echo "[+]       Downloading binary package        [+]"
+echo "-----------------------------------------------"
 mkdir -p ${chroot_lock}/{etc,dev,proc,sys,tmp,var}
-chmod 1777 ${chroot_lock}/tmp
 
-echo "[+] Preparing all needed package"
+chmod 1777 ${chroot_lock}/tmp
 
 cd ${chroot_lock}
 
-wget -c http://archive.terralinux.org/repo/i686/pacman-3.5.2-1-i686.pkg.tar.gz --no-check-certificate
-wget -c http://archive.terralinux.org/repo/i686/libfetch-2.33-3-i686.pkg.tar.gz --no-check-certificate
-wget -c http://archive.terralinux.org/repo/i686/libarchive-2.8.4-2-i686.pkg.tar.gz --no-check-certificate
-wget -c http://archive.terralinux.org/repo/i686/bash-4.2.010-1-i686.pkg.tar.xz --no-check-certificate
-wget -c http://archive.terralinux.org/repo/i686/openssl-1.0.0.d-1-i686.pkg.tar.gz --no-check-certificate
-wget -c http://archive.terralinux.org/repo/i686/glibc-2.13-5-i686.pkg.tar.xz --no-check-certificate
-wget -c http://archive.terralinux.org/repo/i686/gcc-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
-wget -c http://archive.terralinux.org/repo/i686/gcc-libs-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
+wget -c http://archive.terralinux.org/misc/${dev_binary}
 
-for f in *.tar.gz ; do tar -xpf $f ; done || return 1
+echo "[+]           Extracting Binary              [+]"
 
-for f in *.tar.xz ; do tar -xpf $f ; done || return 1
+tar -xpf ${dev_binary} 
 
-echo "[+] Binding all related stuff"
+echo "[+] 	  Binding all related stuff	   [+]"
 
-cp -Lv /etc/resolv.conf ./etc/
-cp -Lv /etc/hosts ./etc/
-cp -Lv /etc/fstab ./etc/
-cp -Lv /etc/mtab ./etc/
+cp -Lv /etc/resolv.conf ${chroot_lock}/etc/
+cp -Lv /etc/hosts ${chroot_lock}/etc/
+cp -Lv /etc/fstab ${chroot_lock}/etc/
+cp -Lv /etc/mtab ${chroot_lock}/etc/
 
-mount -o bind /dev ./dev
-mount -t sysfs /sys ./sys
-mount -t proc /proc ./proc
+mount -B /dev ${chroot_lock}/dev
+mount -B /dev/pts ${chroot_lock}/dev/pts
+mount -t sysfs /sys ${chroot_lock}/sys
+mount -t proc /proc ${chroot_lock}/proc
 
-echo "##############################################################"
-echo "[+] Entering Chroot... "
-echo "##############################################################"
-echo "[+] Once you have finish, type \"exit\""
-echo "##############################################################"
+echo "[+]-------------------------------------------[+]"
+echo "[+] 		Entering Chroot		    [+]"
+echo "[+]     Once you have finish, type \"exit\"   [+]"
+echo "[+]   don't forget run $ source /etc/profile  [+]"
+echo "[+]===========================================[+]"
 
 chroot ${chroot_lock}
-export PS1="(chroot-terra) $PS1"
 
-echo "[+] Exited chroot environemnt"
+echo "[+]        Exited chroot environemnt          [+]"
 
 cd
 
 echo "[+] Backup the binary"
-cp -v ${chroot_lock}/*.pkg.* $HOME/
+cp -v ${chroot_lock}/${dev_binary} $HOME/
 
 rm -rf ${chroot_lock}/etc/{fstab,mtab}
-umount ${chroot_lock}/{dev,proc,sys}
-rm -rf ${chroot_lock}
 
+echo "[+] Umount all related stuff"
+umount ${chroot_lock}/{dev/pts,dev,proc,sys}
+
+clear
+echo "[+] Don't Forget to remove all stuff inside /mnt/terra-chroot"
