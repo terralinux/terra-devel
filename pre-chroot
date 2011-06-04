@@ -13,45 +13,53 @@ if [ "$EUID" != '0' ]; then
 	exit 1
 fi
 
+chroot_lock="/mnt/terra-chroot"
+
 echo "Please prepare your partition before do this"
 echo "[+] Prepare your partition for working env"
-echo "[+] Noticeable size is arrounc 10GiB - 20GiB"
+echo "[+] Noticeable size is arround 10GiB - 20GiB"
 
 #partition="$(readlink -f ${1})"
 #shift 1
 #[ "${partition}" = '' ] && echo 'error: please specify a working directory' && usage 1 
 #fdisk $partition
+
 echo "##############################################################"
 echo "[+] Terralinux Pre-Chroot Script"
 echo "[+] Setting up Chroot environment..."
 echo "[+] this will created a working dir in /mnt"
 echo "=============================================================="
 
-chroot_lock="/mnt/terra-chroot"
-
-mkdir -p ${chroot_lock}/{etc,dev,proc}
+mkdir -p ${chroot_lock}/{etc,dev,proc,sys}
 
 echo "[+] Preparing all needed package"
 
 cd ${chroot_lock}
 
-wget http://archive.terralinux.org/repo/i686/pacman-3.5.2-1-i686.pkg.tar.gz --no-check-certificate
-wget http://archive.terralinux.org/repo/i686/libfetch-2.33-3-i686.pkg.tar.gz --no-check-certificate
-wget http://archive.terralinux.org/repo/i686/libarchive-2.8.4-2-i686.pkg.tar.gz --no-check-certificate
-wget http://archive.terralinux.org/repo/i686/glibc-2.13-5-i686.pkg.tar.xz --no-check-certificate
-wget http://archive.terralinux.org/repo/i686/gcc-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
-wget http://archive.terralinux.org/repo/i686/gcc-libs-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
+wget -c http://archive.terralinux.org/repo/i686/pacman-3.5.2-1-i686.pkg.tar.gz --no-check-certificate
+wget -c http://archive.terralinux.org/repo/i686/libfetch-2.33-3-i686.pkg.tar.gz --no-check-certificate
+wget -c http://archive.terralinux.org/repo/i686/libarchive-2.8.4-2-i686.pkg.tar.gz --no-check-certificate
+#wget -c http://archive.terralinux.org/repo/i686/glibc-2.13-5-i686.pkg.tar.xz --no-check-certificate
+#wget -c http://archive.terralinux.org/repo/i686/gcc-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
+#wget -c http://archive.terralinux.org/repo/i686/gcc-libs-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
 
-for f in *.tar.gz ; do tar xpf $f ; done || return 1
-for f in *.tar.xz ; do tar xpf $f ; done || return 1
+for f in *.tar.gz do 
+	tar xpf $f 
+done || return 1
+
+for f in *.tar.xz do 
+	tar xpf $f 
+done || return 1
 
 echo "[+] Binding all related stuff"
+
 cp -Lv /etc/resolv.conf ./etc/
 cp -Lv /etc/hosts ./etc/
 cp -Lv /etc/fstab ./etc/
 cp -Lv /etc/mtab ./etc/
 
-mount --bind /dev/ ./dev
+mount -o bind /dev ./dev
+mount -t sysfs /sys ./sys
 mount -t proc /proc ./proc
 
 echo "##############################################################"
@@ -60,13 +68,13 @@ echo "##############################################################"
 echo "[+] Once you have finish, type \"exit\""
 echo "##############################################################"
 
-env -i HOME="/root" TERM="${TERM}" SHELL="/bin/bash" chroot ${chroot_lock} /bin/bash
+chroot ${chroot_lock}
+
+echo "[+] Backup the binary"
+cp -v ${chroot_lock}/*.pkg.* $home/
 
 echo "[+] Exited chroot environemnt"
 
-rm -rf /mnt/terra_chroot/etc/mtab
-rm -rf /mnt/terra_chroot/etc/fstab
-
-umount /mnt/terra_chroot/dev
-umount /mnt/terra_chroot/proc
-
+cd
+rm -rf ${chroot_lock}/etc
+umount ${chroot_lock}/{dev,proc,sys}
