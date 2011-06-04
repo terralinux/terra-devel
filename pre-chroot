@@ -43,13 +43,9 @@ wget -c http://archive.terralinux.org/repo/i686/libarchive-2.8.4-2-i686.pkg.tar.
 #wget -c http://archive.terralinux.org/repo/i686/gcc-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
 #wget -c http://archive.terralinux.org/repo/i686/gcc-libs-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
 
-for f in *.tar.gz do 
-	tar xpf $f 
-done || return 1
+for f in *.tar.gz ; do tar xpf $f ; done || return 1
 
-for f in *.tar.xz do 
-	tar xpf $f 
-done || return 1
+for f in *.tar.xz ; do tar xpf $f ; done || return 1
 
 echo "[+] Binding all related stuff"
 
