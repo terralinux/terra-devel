@@ -1,0 +1,47 @@
+#!/bin/bash
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+if [ "$EUID" != '0' ]; then
+	echo 'error: this script must be run as root.'
+	exit 1
+fi
+
+clear
+echo "##############################################################"
+echo "[+] Terralinux Pre-Chroot Script"
+echo "[+] Setting up Chroot environment..."
+
+mkdir -p /mnt/terra-chroot
+mkdir -p /mnt/terra-chroot/etc
+
+cp -L /etc/resolv.conf /mnt/terra-chroot/etc/
+cp -L /etc/hosts /mnt/terra-chroot/etc/
+cp -L /etc/fstab /mnt/terra-chroot/etc/
+cp -L /etc/mtab /mnt/terra-chroot/etc/
+
+mount --bind /dev/ /mnt/terra-chroot/dev
+mount -t proc /proc /mnt/terra-chroot/proc
+
+echo "##############################################################"
+echo "[+] Entering Chroot... "
+echo "##############################################################"
+echo "[+] Once you have finish, type \"exit\""
+echo "##############################################################"
+
+chroot /mnt/terra-chroot
+
+echo "[+] Exited chroot environemnt"
+
+rm -rf /mnt/terra_chroot/etc/mtab
+rm -rf /mnt/terra_chroot/etc/fstab
+
+umount /mnt/terra_chroot/dev
+umount /mnt/terra_chroot/proc
+
