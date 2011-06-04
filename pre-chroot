@@ -1,0 +1,80 @@
+#!/bin/bash
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+if [ "$EUID" != '0' ]; then
+	echo 'error: this script must be run as root.'
+	exit 1
+fi
+
+chroot_lock="/mnt/terra-chroot"
+
+echo "Please prepare your partition before do this"
+echo "[+] Prepare your partition for working env"
+echo "[+] Noticeable size is arround 10GiB - 20GiB"
+
+#partition="$(readlink -f ${1})"
+#shift 1
+#[ "${partition}" = '' ] && echo 'error: please specify a working directory' && usage 1 
+#fdisk $partition
+
+echo "##############################################################"
+echo "[+] Terralinux Pre-Chroot Script"
+echo "[+] Setting up Chroot environment..."
+echo "[+] this will created a working dir in /mnt"
+echo "=============================================================="
+
+mkdir -p ${chroot_lock}/{etc,dev,proc,sys}
+
+echo "[+] Preparing all needed package"
+
+cd ${chroot_lock}
+
+wget -c http://archive.terralinux.org/repo/i686/pacman-3.5.2-1-i686.pkg.tar.gz --no-check-certificate
+wget -c http://archive.terralinux.org/repo/i686/libfetch-2.33-3-i686.pkg.tar.gz --no-check-certificate
+wget -c http://archive.terralinux.org/repo/i686/libarchive-2.8.4-2-i686.pkg.tar.gz --no-check-certificate
+#wget -c http://archive.terralinux.org/repo/i686/glibc-2.13-5-i686.pkg.tar.xz --no-check-certificate
+#wget -c http://archive.terralinux.org/repo/i686/gcc-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
+#wget -c http://archive.terralinux.org/repo/i686/gcc-libs-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
+
+for f in *.tar.gz do 
+	tar xpf $f 
+done || return 1
+
+for f in *.tar.xz do 
+	tar xpf $f 
+done || return 1
+
+echo "[+] Binding all related stuff"
+
+cp -Lv /etc/resolv.conf ./etc/
+cp -Lv /etc/hosts ./etc/
+cp -Lv /etc/fstab ./etc/
+cp -Lv /etc/mtab ./etc/
+
+mount -o bind /dev ./dev
+mount -t sysfs /sys ./sys
+mount -t proc /proc ./proc
+
+echo "##############################################################"
+echo "[+] Entering Chroot... "
+echo "##############################################################"
+echo "[+] Once you have finish, type \"exit\""
+echo "##############################################################"
+
+chroot ${chroot_lock}
+
+echo "[+] Backup the binary"
+cp -v ${chroot_lock}/*.pkg.* $home/
+
+echo "[+] Exited chroot environemnt"
+
+cd
+rm -rf ${chroot_lock}/etc
+umount ${chroot_lock}/{dev,proc,sys}
