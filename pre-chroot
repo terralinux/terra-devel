@@ -42,9 +42,9 @@ wget -c http://archive.terralinux.org/repo/i686/libfetch-2.33-3-i686.pkg.tar.gz 
 wget -c http://archive.terralinux.org/repo/i686/libarchive-2.8.4-2-i686.pkg.tar.gz --no-check-certificate
 wget -c http://archive.terralinux.org/repo/i686/bash-4.2.010-1-i686.pkg.tar.xz --no-check-certificate
 wget -c http://archive.terralinux.org/repo/i686/openssl-1.0.0.d-1-i686.pkg.tar.gz --no-check-certificate
-#wget -c http://archive.terralinux.org/repo/i686/glibc-2.13-5-i686.pkg.tar.xz --no-check-certificate
-#wget -c http://archive.terralinux.org/repo/i686/gcc-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
-#wget -c http://archive.terralinux.org/repo/i686/gcc-libs-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
+wget -c http://archive.terralinux.org/repo/i686/glibc-2.13-5-i686.pkg.tar.xz --no-check-certificate
+wget -c http://archive.terralinux.org/repo/i686/gcc-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
+wget -c http://archive.terralinux.org/repo/i686/gcc-libs-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
 
 for f in *.tar.gz ; do tar -xpf $f ; done || return 1
 
@@ -77,7 +77,7 @@ cd
 echo "[+] Backup the binary"
 cp -v ${chroot_lock}/*.pkg.* $HOME/
 
+rm -rf ${chroot_lock}/etc/{fstab,mtab}
 umount ${chroot_lock}/{dev,proc,sys}
 rm -rf ${chroot_lock}
-
 
