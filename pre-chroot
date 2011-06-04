@@ -13,13 +13,34 @@ if [ "$EUID" != '0' ]; then
 	exit 1
 fi
 
-clear
+echo "Please prepare your partition before do this"
+echo "[+] Prepare your partition for working env"
+echo "[+] Noticeable size is arrounc 10GiB - 20GiB"
+
+fdisk $partition
+
 echo "##############################################################"
 echo "[+] Terralinux Pre-Chroot Script"
 echo "[+] Setting up Chroot environment..."
+echo "[+] this will created a working dir in /mnt"
 
-mkdir -p /mnt/terra-chroot
-mkdir -p /mnt/terra-chroot/etc
+mkdir -p /mnt/terra-chroot/{etc,dev,proc}
+
+chroot_lock="/mnt/terra-chroot"
+
+echo "[+] Preparing all needed package"
+
+cd $chroot_lock
+
+wget http://archive.terralinux.org/repo/i686/pacman-3.5.2-1-i686.pkg.tar.gz --no-check-certificate
+wget http://archive.terralinux.org/repo/i686/libfetch-2.33-3-i686.pkg.tar.gz --no-check-certificate
+wget http://archive.terralinux.org/repo/i686/libarchive-2.8.4-2-i686.pkg.tar.gz --no-check-certificate
+wget http://archive.terralinux.org/repo/i686/glibc-2.13-5-i686.pkg.tar.xz --no-check-certificate
+wget http://archive.terralinux.org/repo/i686/gcc-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
+wget http://archive.terralinux.org/repo/i686/gcc-libs-4.6.0-5-i686.pkg.tar.xz --no-check-certificate
+
+for f in *.tar.gz ; do tar xpf $f ; done || return 1
+for f in *.tar.xz ; do tar xpf $f ; done || return 1
 
 cp -L /etc/resolv.conf /mnt/terra-chroot/etc/
 cp -L /etc/hosts /mnt/terra-chroot/etc/
