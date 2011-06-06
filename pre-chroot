@@ -28,6 +28,7 @@ echo "[+]=========================================[+]"
 echo "[+]=========================================[+]"
 echo "[+]       Downloading binary package        [+]"
 echo "-----------------------------------------------"
+
 mkdir -p ${chroot_lock}/{etc,dev,proc,sys,tmp,var}
 
 chmod 1777 ${chroot_lock}/tmp
