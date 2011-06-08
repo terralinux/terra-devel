@@ -7,6 +7,8 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
+#
+# This Program is still under heavy development, so use it with wise
 
 if [ "$EUID" != '0' ]; then
 	echo 'error: this script must be run as root.'
@@ -36,12 +38,17 @@ chmod 1777 ${chroot_lock}/tmp
 cd ${chroot_lock}
 
 wget -c http://archive.terralinux.org/misc/${dev_binary}
+wget -c http://archive.terralinux.org/misc/sha256.txt
+
+echo "[+]		    Checking Integrity			   [+]"
+
+sha256 -c sha256.txt || return 1
 
 echo "[+]           Extracting Binary              [+]"
 
 tar -xpf ${dev_binary} 
 
-echo "[+] 	  Binding all related stuff	   [+]"
+echo "[+] 		Binding all related stuff		   [+]"
 
 cp -Lv /etc/resolv.conf ${chroot_lock}/etc/
 cp -Lv /etc/hosts ${chroot_lock}/etc/
@@ -54,7 +61,7 @@ mount -t sysfs /sys ${chroot_lock}/sys
 mount -t proc /proc ${chroot_lock}/proc
 
 echo "[+]-------------------------------------------[+]"
-echo "[+] 		Entering Chroot		    [+]"
+echo "[+] 		Entering Chroot						[+]"
 echo "[+]     Once you have finish, type \"exit\"   [+]"
 echo "[+]   don't forget run $ source /etc/profile  [+]"
 echo "[+]===========================================[+]"
@@ -75,3 +82,5 @@ umount ${chroot_lock}/{dev/pts,dev,proc,sys}
 
 clear
 echo "[+] Don't Forget to remove all stuff inside /mnt/terra-chroot"
+
+# vim: ts=4 sw=2
