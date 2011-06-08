@@ -42,7 +42,12 @@ wget -c http://archive.terralinux.org/misc/sha256.txt
 
 echo "[+]		    Checking Integrity			   [+]"
 
-sha256 -c sha256.txt || return 1
+sha256sum -c sha256.txt
+
+if return == 1 ; then
+	echo " The cheksum is failed, redownloading the binary"
+	wget -c wget -c http://archive.terralinux.org/misc/${dev_binary}
+fi
 
 echo "[+]           Extracting Binary              [+]"
 
