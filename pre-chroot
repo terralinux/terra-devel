@@ -16,6 +16,7 @@ if [ "$EUID" != '0' ]; then
 fi
 
 chroot_lock="/mnt/terra-chroot"
+box_code="14096167"
 dev_binary="terra-devel.tar.xz"
 
 echo "  Please prepare your partition before do this"
@@ -37,8 +38,8 @@ chmod 1777 ${chroot_lock}/tmp
 
 cd ${chroot_lock}
 
-wget -c http://archive.terralinux.org/misc/${dev_binary}
-wget -c http://archive.terralinux.org/misc/sha256.txt
+wget -c http://dl.dropbox.com/u/${box_code}/${dev_binary}
+wget -c http://dl.dropbox.com/u/${box_code}/sha256.txt
 
 echo "[+]		    Checking Integrity			   [+]"
 
@@ -46,7 +47,7 @@ sha256sum -c sha256.txt
 
 if return == 1 ; then
 	echo " The cheksum is failed, redownloading the binary"
-	wget -c wget -c http://archive.terralinux.org/misc/${dev_binary}
+	wget -c http://dl.dropbox.com/u/${box_code}/${dev_binary}
 fi
 
 echo "[+]           Extracting Binary              [+]"
