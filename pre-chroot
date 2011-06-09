@@ -39,7 +39,7 @@ chmod 1777 ${chroot_lock}/tmp
 cd ${chroot_lock}
 
 wget -c http://dl.dropbox.com/u/${box_code}/${dev_binary}
-wget -c http://dl.dropbox.com/u/${box_code}/sha256.txt
+wget -c http://dl.dropbox.com/u/${box_code}/sha256sum.txt
 
 echo "[+]		    Checking Integrity			   [+]"
 
