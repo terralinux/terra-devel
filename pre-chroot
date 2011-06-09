@@ -45,11 +45,6 @@ echo "[+]		    Checking Integrity			   [+]"
 
 sha256sum -c sha256sum.txt
 
-if return == 1 ; then
-	echo " The cheksum is failed, redownloading the binary"
-	wget -c http://dl.dropbox.com/u/${box_code}/${dev_binary}
-fi
-
 echo "[+]           Extracting Binary              [+]"
 
 tar -xpf ${dev_binary} 
