@@ -43,7 +43,7 @@ wget -c http://dl.dropbox.com/u/${box_code}/sha256sum.txt
 
 echo "[+]		    Checking Integrity			   [+]"
 
-sha256sum -c sha256.txt
+sha256sum -c sha256sum.txt
 
 if return == 1 ; then
 	echo " The cheksum is failed, redownloading the binary"
