@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [[ -z $1 ]]; then
+  echo " USAGE: terraroot <chroot-directory>"
+    return 1
+fi
+
+mount -t proc proc $1/proc
+mount -o bind /dev $1/dev
+mount -o bind /sys $1/sys
+mount -o bind /dev/pts $1/dev/pts
+
+echo 'mounting done'
+
+chroot $1
