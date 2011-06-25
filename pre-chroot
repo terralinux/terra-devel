@@ -47,7 +47,7 @@ sha256sum -c sha256sum.txt
 
 echo "[+]           Extracting Binary              [+]"
 
-tar -xpf ${dev_binary} 
+tar -xpf ${dev_binary}
 
 echo "[+] 		Binding all related stuff		   [+]"
 
